@@ -16,4 +16,3 @@ salt-minion:
     - mode: 644
     - require:
       - pkg: salt-minion
-

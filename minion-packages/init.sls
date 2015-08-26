@@ -1,3 +1,4 @@
+#openvswitch install
 /srv/salt-data/minion-packages/openvswitch:
   file.directory:
     - user: root
@@ -11,48 +12,15 @@
     - source: salt://minion-packages/openvswitch/openvswitch-2.3.0-1.x86_64.rpm
     - require:
       - file: /srv/salt-data/minion-packages/openvswitch
-    - order: 2
-
-/srv/salt-data/minion-packages/kubernetes:
-  file.directory:
-    - user: root
-    - group: root
-    - makedirs: True
     - order: 3
 
-/srv/salt-data/minion-packages/kubernetes/kubernetes-client-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm:
+/srv/salt-data/minion-packages/openvswitch/openvswitchdb.sh:
   file:
     - managed
-    - source: salt://minion-packages/kubernetes/kubernetes-client-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm
+    - source: salt://minion-packages/openvswitch/openvswitchdb.sh
+    - require:
+      - file: /srv/salt-data/minion-packages/openvswitch
     - order: 4
-
-/srv/salt-data/minion-packages/kubernetes/kubernetes-master-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm:
-  file:
-    - managed
-    - source: salt://minion-packages/kubernetes/kubernetes-master-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm
-    - order: 5
-
-/srv/salt-data/minion-packages/kubernetes/kubernetes-node-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm:
-  file:
-    - managed
-    - source: salt://minion-packages/kubernetes/kubernetes-node-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm
-    - order: 6
-
-/srv/salt-data/minion-packages/kubernetes/kubernetes-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm:
-  file:
-    - managed
-    - source: salt://minion-packages/kubernetes/kubernetes-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm
-    - order: 7
-
-update-repo:
-  cmd.run:
-    - name: 'yum -y update'
-    - order: 8
-
-docker:
-  pkg:
-    - installed
-    - order: 9
 
 openvswitch-extras-pkgs:
   pkg:
@@ -62,7 +30,7 @@ openvswitch-extras-pkgs:
       - kernel-devel
       - openssl-devel
       - socat
-    - order: 10
+    - order: 5
 
 openvswitch-setup:
   cmd.run:
@@ -72,23 +40,79 @@ openvswitch-setup:
     - require:
       - pkg: openvswitch-extras-pkgs
       - file: /srv/salt-data/minion-packages/openvswitch/openvswitch-2.3.0-1.x86_64.rpm
-    - order: 11
+    - order: 6
 
 openvswitch:
   pkg:
     - installed
     - require:
       - cmd: openvswitch-setup
+    - order: 7
+
+policycoreutils-packages:
+  cmd.run:
+    - unless: rpm -qa | grep policycoreutils
+    - name: 'yum -y install policycoreutils*'
+    - order: 8
+
+/etc/openvswitch:
+  file.directory:
+    - user: root
+    - group: root
+    - makedirs: True
+    - order: 9
+
+openvswitch-db:
+  cmd.run:
+    - unless: semanage fcontext -l | grep '/etc/openvswitch'
+    - name: 'sh openvswitchdb.sh'
+    - cwd: /srv/salt-data/minion-packages/openvswitch
+    - require:
+      - pkg: openvswitch
+      - file: /srv/salt-data/minion-packages/openvswitch/openvswitchdb.sh
+    - order: 10
+
+bridge-utils:
+  pkg:
+    - installed
+    - order: 11
+#kubenetes install
+/srv/salt-data/minion-packages/kubernetes:
+  file.directory:
+    - user: root
+    - group: root
+    - makedirs: True
     - order: 12
 
-kubernetes-node-setup:
-  cmd.run:
-    - unless: rpm -qa | grep kubernetes-node
-    - name: 'yum -y localinstall kubernetes-node-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm'
-    - cwd: /srv/salt-data/minion-packages/kubernetes
-    - require:
-      - file: /srv/salt-data/minion-packages/kubernetes/kubernetes-node-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm
+/srv/salt-data/minion-packages/kubernetes/kubernetes-client-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm:
+  file:
+    - managed
+    - source: salt://minion-packages/kubernetes/kubernetes-client-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm
     - order: 13
+
+/srv/salt-data/minion-packages/kubernetes/kubernetes-master-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm:
+  file:
+    - managed
+    - source: salt://minion-packages/kubernetes/kubernetes-master-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm
+    - order: 14
+
+/srv/salt-data/minion-packages/kubernetes/kubernetes-node-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm:
+  file:
+    - managed
+    - source: salt://minion-packages/kubernetes/kubernetes-node-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm
+    - order: 15
+
+/srv/salt-data/minion-packages/kubernetes/kubernetes-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm:
+  file:
+    - managed
+    - source: salt://minion-packages/kubernetes/kubernetes-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm
+    - order: 16
+
+#docker install
+docker:
+  pkg:
+    - installed
+    - order: 17
 
 kubernetes-client-setup:
   cmd.run:
@@ -97,7 +121,16 @@ kubernetes-client-setup:
     - cwd: /srv/salt-data/minion-packages/kubernetes
     - require:
       - file: /srv/salt-data/minion-packages/kubernetes/kubernetes-client-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm
-    - order: 14
+    - order: 18
+
+kubernetes-node-setup:
+  cmd.run:
+    - unless: rpm -qa | grep kubernetes-node
+    - name: 'yum -y localinstall kubernetes-node-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm'
+    - cwd: /srv/salt-data/minion-packages/kubernetes
+    - require:
+      - file: /srv/salt-data/minion-packages/kubernetes/kubernetes-node-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm
+    - order: 19
 
 kubernetes-master-setup:
   cmd.run:
@@ -106,11 +139,11 @@ kubernetes-master-setup:
     - cwd: /srv/salt-data/minion-packages/kubernetes
     - require:
       - file: /srv/salt-data/minion-packages/kubernetes/kubernetes-master-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm
-    - order: 15
+    - order: 20
 
 kubernetes-setup:
   cmd.run:
-    - unless: rpm -qa | grep kubernetes-1.1.0
+    - unless: rpm -qa | grep kubernetes
     - name: 'yum -y localinstall kubernetes-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm'
     - cwd: /srv/salt-data/minion-packages/kubernetes
     - require:
@@ -118,13 +151,15 @@ kubernetes-setup:
       - cmd: kubernetes-master-setup
       - cmd: kubernetes-client-setup
       - cmd: kubernetes-node-setup
-    - order: 16
+    - order: 21
 
 kubernetes:
   pkg:
     - installed
     - require:
       - cmd: kubernetes-setup
-    - order: 17
+    - order: 22
+
+
 # TODO: check the server is running
 # parse the log maybe?
