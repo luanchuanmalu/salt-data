@@ -1,0 +1,3 @@
+1. copy all packages to /tmp/kubernetes folder from minion-packages\kubernetes\
+2. copy the kubemasterinstall.sh to /tmp/kubernetes
+2. on the server, cd to the folder /tmp/kubernetes, install by sh file kubemasterinstall.sh

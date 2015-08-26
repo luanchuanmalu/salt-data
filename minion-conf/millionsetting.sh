@@ -16,7 +16,7 @@ getconfig2setting()
 		api_server=$(sed '/^\['"$SECTION"'\]/,$!d;/^api_server[ \t]*=[ \t]*"*/!d;s///;s/"*[ \t]*$//;q' $CONFILE)
 		etcd_server=$(sed '/^\['"$SECTION"'\]/,$!d;/^etcd_server[ \t]*=[ \t]*"*/!d;s///;s/"*[ \t]*$//;q' $CONFILE)
 		kubernetesconfig=$(sed '/^\['"$SECTION"'\]/,$!d;/^kubernetesconfig[ \t]*=[ \t]*"*/!d;s///;s/"*[ \t]*$//;q' $CONFILE)
-    echo "$remoteip $kbrip $kbrgetway $kbripfile $routefile $routedev $kubeletconf $api_server $etcd_server $kubernetesconfig"
+    #echo "$remoteip $kbrip $kbrgetway $kbripfile $routefile $routedev $kubeletconf $api_server $etcd_server $kubernetesconfig"
 		if [[ "$SECTION" != "$hostname" ]]
 			then
 			#gre bridge part

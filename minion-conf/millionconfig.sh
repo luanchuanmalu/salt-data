@@ -83,9 +83,11 @@ EOF
 CONFIGFILE='/srv/salt-data/minion-conf/minionlist.ini'
 echo "Config setting by $CONFIGFILE"
 profile=`sed -n '/minions/'p $CONFIGFILE | awk -F= '{print $2}' | sed 's/,/ /g'`
+echo $SECTION $hostname
 hostname=$(hostname)
 for SECTION in $profile
 do
+	echo $SECTION $hostname
 	if [[ "$SECTION" == "$hostname" ]]
 		then
 		kbrip=$(sed '/^\['"$SECTION"'\]/,$!d;/^kbrip[ \t]*=[ \t]*"*/!d;s///;s/"*[ \t]*$//;q' $CONFIGFILE)
@@ -112,7 +114,8 @@ do
 		# set kubernetes config etcd_server kubernetesconfig
 		echo "set kubernetes config file $kubernetesconfig for $SECTION"
 		writekubernetesconfig $kubernetesconfig  $api_server $etcd_server
+		break
 	fi
-	break
+
 done
 echo "Config setting done"
