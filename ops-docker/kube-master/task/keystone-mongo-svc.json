@@ -1,0 +1,23 @@
+{
+   "kind":"Service",
+   "apiVersion":"v1",
+   "metadata":{
+      "name":"keystone-mongo",
+      "labels":{
+         "app":"keystone-mongo"
+      }
+   },
+   "spec":{
+      "ports": [
+         {
+           "port":27017,
+           "targetPort":"keystone-mongo"
+         }
+      ],
+      "selector":{
+         "app":"keystone-mongo"
+      },
+      "clusterIP":"10.254.0.17",
+      "type":"ClusterIP"
+   }
+}

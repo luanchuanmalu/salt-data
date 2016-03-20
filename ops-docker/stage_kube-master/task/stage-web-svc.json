@@ -1,0 +1,24 @@
+{
+   "kind":"Service",
+   "apiVersion":"v1",
+   "metadata":{
+      "name":"stage-web",
+      "labels":{
+         "app":"stage-web"
+      }
+   },
+   "spec":{
+      "ports": [
+         {
+           "port":80,
+           "targetPort":"stage-web",
+           "nodePort":30001
+         }
+      ],
+      "selector":{
+         "app":"stage-web"
+      },
+      "clusterIP":"10.254.0.100",
+      "type":"NodePort"
+   }
+}

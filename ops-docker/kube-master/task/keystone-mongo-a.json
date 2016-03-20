@@ -1,0 +1,49 @@
+{
+   "kind":"ReplicationController",
+   "apiVersion":"v1",
+   "metadata":{
+      "name":"keystone-mongo-a",
+      "labels":{
+         "app":"keystone-mongo",
+         "role":"groupa"
+      }
+   },
+   "spec":{
+      "replicas":1,
+      "selector":{
+        "app":"keystone-mongo",
+        "role":"groupa"
+      },
+      "template":{
+         "metadata":{
+            "labels":{
+              "app":"keystone-mongo",
+              "role":"groupa"
+            }
+         },
+         "spec":{
+            "containers":[
+               {
+                  "name":"keystone-mongo",
+                  "image":"mongo",
+                  "ports":[
+                     {
+                        "name":"keystone-mongo",
+                        "containerPort":27017
+                     }
+                  ],
+                  "volumeMounts": [
+                      { "name": "mongodb",
+                      "mountPath": "/data/db"
+              		}]
+               }
+            ],
+            "nodeSelector":{"label": "minion2"},
+          	"volumes":[
+               { "name": "mongodb",
+                 "hostPath":{"path": "/srv/mongo/data/db"}
+               }]
+         }
+      }
+   }
+}

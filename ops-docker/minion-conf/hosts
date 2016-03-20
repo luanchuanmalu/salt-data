@@ -1,0 +1,6 @@
+127.0.0.1 localhost
+::1         localhost localhost.localdomain localhost6 localhost6.localdomain6
+112.74.208.157	centos7master
+112.74.29.147 	centos7minion1
+120.25.59.42   	centos7minion2
+120.25.64.34   	docker-registry

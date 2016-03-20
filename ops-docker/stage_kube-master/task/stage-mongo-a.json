@@ -1,0 +1,49 @@
+{
+   "kind":"ReplicationController",
+   "apiVersion":"v1",
+   "metadata":{
+      "name":"stage-mongo-a",
+      "labels":{
+         "app":"stage-mongo",
+         "role":"groupa"
+      }
+   },
+   "spec":{
+      "replicas":1,
+      "selector":{
+        "app":"stage-mongo",
+        "role":"groupa"
+      },
+      "template":{
+         "metadata":{
+            "labels":{
+              "app":"stage-mongo",
+              "role":"groupa"
+            }
+         },
+         "spec":{
+            "containers":[
+               {
+                  "name":"stage-mongo",
+                  "image":"mongo",
+                  "ports":[
+                     {
+                        "name":"stage-mongo",
+                        "containerPort":27017
+                     }
+                  ],
+                  "volumeMounts": [
+                      { "name": "mongodb",
+                      "mountPath": "/data/db"
+              		}]
+               }
+            ],
+            "nodeSelector":{"label": "stageminion1"},
+          	"volumes":[
+               { "name": "mongodb",
+                 "hostPath":{"path": "/srv/mongo/data/db"}
+               }]
+         }
+      }
+   }
+}

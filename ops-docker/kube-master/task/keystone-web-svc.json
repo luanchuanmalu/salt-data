@@ -1,0 +1,24 @@
+{
+   "kind":"Service",
+   "apiVersion":"v1",
+   "metadata":{
+      "name":"keystone-web",
+      "labels":{
+         "app":"keystone-web"
+      }
+   },
+   "spec":{
+      "ports": [
+         {
+           "port":80,
+           "targetPort":"keystone-web",
+           "nodePort":30001
+         }
+      ],
+      "selector":{
+         "app":"keystone-web"
+      },
+      "clusterIP":"10.254.0.244",
+      "type":"NodePort"
+   }
+}

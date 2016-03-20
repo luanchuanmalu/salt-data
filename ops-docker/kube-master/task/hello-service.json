@@ -1,0 +1,23 @@
+{
+   "kind":"Service",
+   "apiVersion":"v1",
+   "metadata":{
+      "name":"hello",
+      "labels":{
+         "app":"hello"
+      }
+   },
+   "spec":{
+      "ports": [
+         {
+           "port":80,
+           "targetPort":"http-server",
+           "nodePort":30001
+         }
+      ],
+      "selector":{
+         "app":"hello"
+      },
+      "type":"NodePort"
+   }
+}

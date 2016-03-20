@@ -1,0 +1,46 @@
+------------------------------keystone-ops-salt--------------------------------------
+1. keystone-ops-salt
+#https://github.com/onekeystone/keystone-ops-salt.git
+cp -r $WORKSPACE /srv
+
+2. keystoneweb_creat
+groupa=keystone-web-a.json
+groupb=keystone-web-b.json
+svcname=keystone-web-svc.json
+taskpath=/srv/keystone-ops-salt/kube-master/task
+kubectl create -f $taskpath/$groupa
+kubectl create -f $taskpath/$groupb
+kubectl create -f $taskpath/$svcname
+-----------------------------------keystoneweb-daily----------------------------------
+1 .keystoneweb_build
+#https://github.com/onekeystone/keystone-web.git
+app=keystone-web
+dockerdr=10.170.130.148:5000/keystone
+echo $WORKSPACE
+
+
+docker run -u root --rm -v $WORKSPACE:/opt/keystone 10.170.130.148:5000/keystone/web-build-env sh -c "cd /opt/keystone; ./build.sh"
+
+docker build -t="$dockerdr/$app:v$BUILD_NUMBER" $WORKSPACE
+docker push $dockerdr/$app:v$BUILD_NUMBER
+
+docker tag -f $dockerdr/$app:v$BUILD_NUMBER $dockerdr/$app:latest
+docker push $dockerdr/$app:latest
+
+docker rmi $dockerdr/$app:v$BUILD_NUMBER
+docker rmi $dockerdr/$app:latest
+
+2. keystoneweb_deploy
+#Part Deploy
+sh /srv/keystone-ops-salt/kube-master/scrpit/RCDeploy.sh "keystone-web-a" "keystone-web-b" "/srv/keystone-ops-salt/kube-master/scrpit"
+
+3. keystoneweb_newdeploy
+#Part Deploy
+sh /srv/keystone-ops-salt/kube-master/scrpit/RCNewDeploy.sh "keystone-web-a" "keystone-web-b" "/srv/keystone-ops-salt/kube-master/scrpit"
+
+4. keystoneweb_resetdeploy
+#Part Deploy
+#salt 'kube-master' state.highstate
+#salt 'kube-master' cmd.run "sh /srv/salt-data/kube-master/scrpit/RCReset.sh"
+sh /srv/keystone-ops-salt/kube-master/scrpit/RCReset.sh "keystone-web-a" "keystone-web-b" "/srv/keystone-ops-salt/kube-master/scrpit"
+-----------------------------------keystoneweb----------------------------------
