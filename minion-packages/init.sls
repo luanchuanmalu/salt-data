@@ -143,7 +143,7 @@ kubernetes-master-setup:
 
 kubernetes-setup:
   cmd.run:
-    - unless: rpm -qa | grep kubernetes
+    - unless: rpm -qa | grep kubernetes-1.1.0
     - name: 'yum -y localinstall kubernetes-1.1.0-0.4.git2bfa9a1.el7.x86_64.rpm'
     - cwd: /srv/salt-data/minion-packages/kubernetes
     - require:
